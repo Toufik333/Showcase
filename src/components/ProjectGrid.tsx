@@ -2,7 +2,7 @@ import {
   ArrowUpRight,
   Layers,
   Wallet,
-  Terminal,
+  StickyNote,
   ShoppingBag,
   Globe,
   Sparkles,
@@ -26,12 +26,12 @@ const projects = [
     icon: ShoppingBag,
   },
   {
-    title: "Vaultline",
+    title: "Notes",
     summary:
-      "Secure, end-to-end encrypted note-taking app with real-time sync and offline-first architecture.",
-    tags: ["React Native", "Node.js", "PostgreSQL"],
-    link: "#",
-    icon: Terminal,
+      "Minimal cloud-synced note-taking app with color-coded cards, pinning, search, and MongoDB Atlas backend.",
+    tags: ["Next.js", "MongoDB", "Tailwind"],
+    link: "/notes",
+    icon: StickyNote,
   },
   {
     title: "Atlas Maps",

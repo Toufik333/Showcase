@@ -1,8 +1,5 @@
 {
-  "/api/tracker/auth/login/route": "app/api/tracker/auth/login/route.js",
-  "/api/tracker/transactions/route": "app/api/tracker/transactions/route.js",
+  "/api/notes/route": "app/api/notes/route.js",
   "/page": "app/page.js",
-  "/tracker/page": "app/tracker/page.js",
-  "/tracker/login/page": "app/tracker/login/page.js",
-  "/tracker/dashboard/page": "app/tracker/dashboard/page.js"
+  "/notes/page": "app/notes/page.js"
 }

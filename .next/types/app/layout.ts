@@ -1,4 +1,4 @@
-// File: /Applications/XAMPP/xamppfiles/htdocs/dashboardMainWebsite/src/app/layout.tsx
+// File: S:\Installed Apps\Xampp installs here\htdocs\deployment\src\app\layout.tsx
 import * as entry from '../../../src/app/layout.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 
