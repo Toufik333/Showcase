@@ -3,7 +3,7 @@ import {
   Layers,
   Wallet,
   Terminal,
-  Cpu,
+  ShoppingBag,
   Globe,
   Sparkles,
 } from "lucide-react";
@@ -18,12 +18,12 @@ const projects = [
     icon: Wallet,
   },
   {
-    title: "Synapse AI Dashboard",
+    title: "E-Commerce Store",
     summary:
-      "Real-time analytics dashboard for monitoring machine learning model performance and data pipelines.",
-    tags: ["Next.js", "Tailwind", "Python"],
-    link: "#",
-    icon: Cpu,
+      "Full-stack storefront with product catalog, shopping cart, cash on delivery checkout, and admin order management.",
+    tags: ["Next.js", "MySQL", "Tailwind"],
+    link: "/shop",
+    icon: ShoppingBag,
   },
   {
     title: "Vaultline",
