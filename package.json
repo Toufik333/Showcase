@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "build:zip": "python scripts/build-deploy-zip.py",
     "start": "node server.js",
     "lint": "next lint"
   },

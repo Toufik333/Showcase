@@ -1,14 +1,17 @@
 # Dashboard Main Website — Project Context
 
-> **Purpose:** This file gives any new AI chat or developer instant context about this project.
+> **Purpose:** This file gives any new AI chat or developer instant context about this project, its architecture, and its deployment workflow.
 
 ## What Is This?
 
-A **Next.js full-stack application** with three main parts:
+A **Next.js full-stack multi-app web portal** containing:
 
-1. **Portfolio Landing Page** (`/`) — Apple-inspired minimal portfolio for a developer named Toufik. Features a glassmorphism navbar, animated hero section, and 6 project cards.
-2. **Money Tracker App** (`/tracker`) — Full-stack personal finance tracker backed by MySQL. Includes JWT authentication, transaction CRUD, monthly dashboard with stat cards, and list/calendar views.
-3. **Notes App** (`/notes`) — Cloud-synced note-taking app backed by MongoDB Atlas. Features color-coded note cards, pinning, real-time search, and full CRUD — no authentication required.
+1. **Portfolio Landing Page** (`/`) — Apple-inspired minimal developer portfolio with a glassmorphism navbar, hero section, and project cards linking to the apps.
+2. **Money Tracker App** (`/tracker`) — Full-stack personal finance tracker backed by MySQL. Features JWT authentication (signup/login/logout), transaction CRUD (income/expense), monthly dashboard with stat cards, and list/calendar views.
+3. **E-Commerce Store & Admin** (`/shop`, `/shop/admin`) — Storefront with product catalogue, cart & checkout, plus admin authentication, product management, and order tracking backed by MySQL.
+4. **Notes App** (`/notes`) — Cloud-synced note-taking app backed by MongoDB Atlas. Features color-coded cards, pinning, live search filtering, and full CRUD.
+
+---
 
 ## Tech Stack
 
@@ -19,132 +22,128 @@ A **Next.js full-stack application** with three main parts:
 | Styling | Tailwind CSS | 4.x (via `@tailwindcss/postcss`) | Utility-first CSS |
 | Icons | lucide-react | 0.475.x | SVG icon library |
 | Font | Inter (via `next/font/google`) | — | Typography |
-| Database | MySQL (via XAMPP) | — | Transaction & user storage |
-| Database | MongoDB Atlas | — | Notes storage (cloud) |
-| DB Driver | mysql2/promise | — | MySQL connection pool |
-| DB Driver | mongodb | 6.x | MongoDB driver |
-| Auth | jose + bcryptjs | — | JWT tokens + password hashing |
-| Dates | date-fns | — | Date formatting & manipulation |
+| Database 1 | MySQL / MariaDB | — | Tracker & Shop data (users, transactions, products, orders, admins) |
+| Database 2 | MongoDB Atlas | — | Notes app cloud storage |
+| DB Drivers | `mysql2/promise`, `mongodb` (v6.x) | — | Connection pooling & client instances |
+| Auth | `jose` + `bcryptjs` | — | JWT cookies (`tracker_session`, `shop_admin_token`) + bcrypt password hashing |
+| Dates | `date-fns` | — | Date formatting & manipulation |
+
+---
 
 ## Project Structure
 
 ```
 src/
-├── middleware.ts                           ← Protects /tracker/dashboard (JWT check)
+├── middleware.ts                           ← Protects /tracker/dashboard & /shop/admin/dashboard
 ├── lib/
-│   ├── db.ts                              ← MySQL pool, auto-creates DB + tables
+│   ├── db.ts                              ← MySQL pool, auto-provisions tables & seeds
 │   ├── auth.ts                            ← JWT sign/verify, bcrypt, cookie helpers
 │   └── mongodb.ts                         ← MongoDB Atlas connection singleton
 ├── app/
-│   ├── globals.css                        ← Tailwind v4 import, fadeInUp animations
-│   ├── layout.tsx                         ← Root layout: Inter font, SEO meta
-│   ├── page.tsx                           ← Portfolio homepage (assembles components)
-│   ├── tracker/
-│   │   ├── page.tsx                       ← Redirect: auth → dashboard, else → login
-│   │   ├── login/page.tsx                 ← Login form (client component)
-│   │   ├── signup/page.tsx                ← Signup form with validation
-│   │   └── dashboard/page.tsx             ← Main tracker dashboard (client component)
-│   ├── notes/
-│   │   └── page.tsx                       ← Notes dashboard (client component)
+│   ├── layout.tsx                         ← Root layout (Inter font, metadata)
+│   ├── page.tsx                           ← Portfolio homepage
+│   ├── tracker/                           ← Money tracker routes (login, signup, dashboard)
+│   ├── shop/                              ← Storefront & admin routes (login, dashboard, checkout)
+│   ├── notes/                             ← Notes app page
 │   └── api/
-│       ├── notes/
-│       │   ├── route.ts                   ← GET (list + search) + POST (create)
-│       │   └── [id]/route.ts              ← PUT (update) + DELETE
-│       └── tracker/
-│           ├── auth/
-│           │   ├── signup/route.ts        ← POST: create user, return JWT cookie
-│           │   ├── login/route.ts         ← POST: validate creds, return JWT cookie
-│           │   └── logout/route.ts        ← POST: clear JWT cookie
-│           └── transactions/
-│               ├── route.ts              ← GET (list by month) + POST (create)
-│               └── [id]/route.ts          ← PUT (update) + DELETE
+│       ├── tracker/                       ← Auth & transactions API
+│       ├── shop/                          ← Storefront & admin orders/products API
+│       └── notes/                         ← Notes CRUD API
 └── components/
-    ├── Navbar.tsx                          ← Sticky glassmorphism nav, "T" logo
-    ├── Hero.tsx                            ← Badge, gradient headline, 2 CTA buttons
-    ├── ProjectGrid.tsx                     ← 6 project cards (1st→tracker, 2nd→shop, 3rd→notes)
-    ├── Footer.tsx                          ← Copyright + social icons
-    ├── notes/
-    │   ├── NoteCard.tsx                   ← Color-coded note card with pin toggle
-    │   ├── NoteModal.tsx                  ← Create/Edit note modal with color picker
-    │   └── SearchBar.tsx                  ← Debounced search input
-    └── tracker/
-        ├── MonthNavigator.tsx             ← < August 2026 > chevron navigation
-        ├── StatCards.tsx                   ← Balance / Income / Expenses cards
-        ├── ViewToggle.tsx                 ← List ↔ Calendar pill toggle
-        ├── TransactionModal.tsx           ← Add/Edit/Delete transaction form
-        ├── TransactionList.tsx            ← Date-grouped list with category icons
-        └── CalendarView.tsx               ← Monthly grid with daily totals
+    ├── Navbar.tsx, Hero.tsx, Footer.tsx   ← Portfolio components
+    ├── ProjectGrid.tsx                    ← Project cards linking to apps
+    ├── tracker/                           ← StatCards, TransactionList, CalendarView, modals
+    └── notes/                             ← NoteCard, NoteModal, SearchBar
 ```
 
-### Config Files
+---
 
-| File | Purpose |
-|------|---------|
-| `next.config.mjs` | Images unoptimized (no static export — API routes require Node.js) |
-| `postcss.config.mjs` | Tailwind CSS v4 via `@tailwindcss/postcss` plugin |
-| `tsconfig.json` | TypeScript with `@/*` path alias → `./src/*` |
+## Environment Variables (`.env`)
 
-## Design System
+| Variable | Description | Example (Local Dev) | Example (Namecheap Production) |
+|----------|-------------|---------------------|--------------------------------|
+| `DB_HOST` | MySQL hostname | `localhost` | `localhost` |
+| `DB_PORT` | MySQL port | `3306` | `3306` |
+| `DB_USER` | MySQL user | `root` | `cpaneluser_dbuser` |
+| `DB_PASSWORD` | MySQL password | `""` | `your_db_password` |
+| `DB_NAME` | MySQL database | `money_tracker` | `cpaneluser_money_tracker` |
+| `DB_SSL` | MySQL SSL mode | `false` | `false` |
+| `JWT_SECRET` | JWT encryption secret | *(dev string)* | `64+ char random string` |
+| `MONGODB_URI` | Atlas MongoDB connection string | `mongodb+srv://...` | `mongodb+srv://...` |
+| `MONGODB_DB` | MongoDB database name | `notes_app` | `notes_app` |
+| `NODE_ENV` | Environment mode | `development` | `production` |
 
-| Token | Value | Usage |
-|-------|-------|-------|
-| Background | `#fbfbfd` | Page background |
-| Text Primary | `#1d1d1f` | Headings, logo, hover states |
-| Text Secondary | `#86868b` | Body text, muted labels, tags |
-| Card Style | `bg-white rounded-2xl border-zinc-200/80 shadow-sm` | Project cards, transaction rows |
-| Navbar | `backdrop-blur-md bg-[#fbfbfd]/80` | Glassmorphism sticky header |
-| Typography | Inter, `tracking-tight`, `font-semibold` | Apple-style clean type |
+---
 
-## Database (MySQL via XAMPP)
-
-- **Host:** `localhost:3306`, **User:** `root`, **Password:** *(none)*
-- **Database:** `money_tracker` (auto-created on first connection)
-
-### Tables (auto-provisioned by `lib/db.ts`)
-
-**`users`**
-| Column | Type |
-|--------|------|
-| id | INT, AUTO_INCREMENT, PK |
-| username | VARCHAR(50), UNIQUE |
-| password_hash | VARCHAR(255) |
-| created_at | TIMESTAMP |
-
-**`transactions`**
-| Column | Type |
-|--------|------|
-| id | INT, AUTO_INCREMENT, PK |
-| user_id | INT, FK → users.id (CASCADE) |
-| type | ENUM('deposit', 'withdraw') |
-| amount | DECIMAL(10,2) |
-| category | VARCHAR(50) |
-| note | TEXT, nullable |
-| transaction_date | DATE |
-| created_at | TIMESTAMP |
-
-## Authentication Flow
-
-1. User signs up/logs in → API hashes password (bcrypt) and returns JWT in HTTP-only cookie (`tracker_session`)
-2. `middleware.ts` checks JWT on every `/tracker/dashboard` request
-3. API routes use `getSession()` to extract user ID from cookie
-4. JWT signed with HS256, 7-day expiry, secret from `JWT_SECRET` env var (dev fallback provided)
-
-## Commands
+## Development & Build Commands
 
 ```bash
-npm run dev      # Start dev server → http://localhost:3000 (XAMPP MySQL must be running)
-npm run build    # Production build (verifies TypeScript + routes)
-npm run start    # Serve production build locally
-npm run lint     # Run ESLint
+npm run dev        # Start local dev server (http://localhost:3000)
+npm run build      # Next.js production build (generates .next)
+npm run build:zip  # Packages project into namecheap-deploy.zip with Linux POSIX permissions
+npm run start      # Run local production server via server.js
+npm run lint       # Run ESLint validation
 ```
 
-## Key Decisions & Notes
+---
 
-- **No static export** — `output: "export"` was removed because API routes require a Node.js server. The portfolio homepage still works, but can't be deployed as plain HTML anymore.
-- **XAMPP MySQL required** — must be running on port 3306 before `npm run dev`. The app auto-creates the database and tables.
-- **Tailwind CSS v4** uses `@import "tailwindcss"` syntax (not v3's `@tailwind` directives).
-- **All portfolio project data is hardcoded** in `ProjectGrid.tsx` — the first card ("Money Tracker") links to `/tracker`, the rest are mock projects.
-- **Transaction categories:** Salary, Investments, Freelance, Food, Rent, Utilities, Entertainment, Shopping, Transport, Healthcare, Other.
-- **Two dashboard views:** List (date-grouped, sorted newest first) and Calendar (monthly grid with daily totals, clickable days).
-- **Mobile responsive** — navbar collapses to hamburger, grids adapt, modal slides up from bottom on mobile.
-- The `package.json` name is `dashboard-main-website` (lowercase) because npm doesn't allow capital letters, even though the directory is `dashboardMainWebsite`.
+## Deployment Workflow (Namecheap Shared Hosting / cPanel)
+
+### ⚠️ Critical Requirements Before Creating the Deployment ZIP
+
+When deploying from a **Windows machine** to a **Linux server (Namecheap / cPanel)**, standard Windows tools like PowerShell's `Compress-Archive` or File Explorer ZIP **strip Linux directory execute permissions (`+x` / `0755`)**. When extracted on cPanel, Node.js cannot traverse nested directories and throws:
+`[Error: EACCES: permission denied, scandir '/.../.next/static/...']` (resulting in Error 503).
+
+To prevent this, follow the exact pre-zip checklist:
+
+#### 1. Configure `next.config.mjs`
+Do **not** use `output: "standalone"` if you intend to run `npm install` on the server. Keep the config standard:
+```js
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  images: {
+    unoptimized: true,
+  },
+};
+export default nextConfig;
+```
+
+#### 2. Run Local Production Build
+Run `npm run build` locally on your PC so the `.next/` build artifact is compiled and verified without CPU limits.
+
+#### 3. Exclude Unnecessary Files from the ZIP
+The ZIP must **exclude**:
+- `node_modules/` (server will install its own via cPanel's `npm install`)
+- `.env` (contains local secrets; created manually on server)
+- `.next/cache/` (temporary cache files, saves ~50MB+)
+- `.git/`, `.DS_Store`, `.zip`
+
+#### 4. Embed Explicit POSIX Permissions (0755 Dirs / 0644 Files)
+Use the included script `scripts/build-deploy-zip.py` (or run `npm run build:zip`). It sets:
+- **Directories:** `0o040755` (`rwxr-xr-x`) — ensures Linux can open, scan, and read all folders.
+- **Files:** `0o100644` (`rw-r--r--`) — ensures files are readable by Passenger/Node.js.
+
+```bash
+# One command to build and package:
+npm run build
+npm run build:zip
+```
+
+Output file: **`namecheap-deploy.zip`** (~1.7 MB).
+
+---
+
+### Step-by-Step Server Setup in cPanel
+
+1. **MySQL Database**: Create database & user via **cPanel → MySQL Database Wizard** (note the prefixed names: `cpaneluser_dbname`, `cpaneluser_dbuser`). Import `schema.sql` via **phpMyAdmin**.
+2. **File Upload**: In **cPanel File Manager**, upload `namecheap-deploy.zip` into your application folder (e.g., `public_html` or `app`) and click **Extract**.
+3. **Environment File**: In File Manager, create `.env` in the app root with server credentials (`DB_USER`, `DB_PASSWORD`, `DB_NAME`, `JWT_SECRET`, `MONGODB_URI`, `MONGODB_DB`, `NODE_ENV=production`).
+4. **Setup Node.js App**: In cPanel:
+   - Node.js version: **18.x or 20.x**
+   - Application mode: **Production**
+   - Application root: `public_html` (or `app`)
+   - Application startup file: `server.js`
+   - Click **Create**.
+5. **Install Dependencies**: Click the **"Run NPM Install"** button on the Node.js setup page.
+6. **MongoDB Atlas IP Whitelist**: In MongoDB Atlas → **Network Access**, whitelist the server IP (or `0.0.0.0/0`).
+7. **Restart App**: Click **Restart** in the Node.js App manager.
