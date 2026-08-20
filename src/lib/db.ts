@@ -31,6 +31,11 @@ async function ensureDatabase() {
   } catch (err) {
     // On cPanel/cloud hosting, the database is already created in cPanel Wizard,
     // so non-root users lack global CREATE DATABASE privilege. Safely proceed.
+    console.warn(
+      `[db] Could not CREATE DATABASE "${DB_CONFIG.database}". ` +
+      `If on shared hosting, ensure the database was created via cPanel MySQL Wizard. ` +
+      `Error: ${err instanceof Error ? err.message : err}`
+    );
   }
 }
 
@@ -111,14 +116,23 @@ async function ensureTables(pool: Pool) {
 async function seedData(pool: Pool) {
   // Seed fixed admin accounts admin1, admin2, admin3 if missing
   const defaultAdmins = ["admin1", "admin2", "admin3"];
-  const defaultPasswordHash = await bcrypt.hash("admin123", 12);
 
+  // Check which admins are missing BEFORE hashing (avoid CPU-heavy bcrypt on every cold start)
+  const missingAdmins: string[] = [];
   for (const adminId of defaultAdmins) {
     const [rows] = await pool.execute<mysql.RowDataPacket[]>(
       "SELECT id FROM admins WHERE admin_id = ?",
       [adminId]
     );
     if (rows.length === 0) {
+      missingAdmins.push(adminId);
+    }
+  }
+
+  // Only hash + insert if there are actually missing admins
+  if (missingAdmins.length > 0) {
+    const defaultPasswordHash = await bcrypt.hash("admin123", 12);
+    for (const adminId of missingAdmins) {
       await pool.execute(
         "INSERT INTO admins (admin_id, password_hash) VALUES (?, ?)",
         [adminId, defaultPasswordHash]
@@ -199,7 +213,7 @@ export async function getPool(): Promise<Pool> {
   pool = mysql.createPool({
     ...DB_CONFIG,
     waitForConnections: true,
-    connectionLimit: 10,
+    connectionLimit: 5,
     queueLimit: 0,
   });
 

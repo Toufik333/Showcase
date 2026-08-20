@@ -19,7 +19,6 @@ let clientPromise: Promise<MongoClient>;
 
 const clientOptions = {
   tls: true,
-  tlsAllowInvalidCertificates: true,
 };
 
 if (process.env.NODE_ENV === "development") {

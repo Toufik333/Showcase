@@ -120,9 +120,6 @@ export default function AdminLoginPage() {
                   className="w-full rounded-xl border border-zinc-200 bg-white py-2.5 pl-9 pr-3 text-xs text-[#1d1d1f] placeholder:text-[#86868b] focus:border-zinc-900 focus:outline-none transition-all"
                 />
               </div>
-              <p className="mt-1 text-[11px] text-[#86868b]">
-                Default password for seeded admins is <code className="rounded bg-zinc-100 px-1 py-0.5 font-mono text-zinc-800">admin123</code>
-              </p>
             </div>
 
             {/* Submit */}
