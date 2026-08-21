@@ -127,3 +127,67 @@ export function deleteAdminSessionCookie() {
     maxAge: 0,
   };
 }
+
+// --- Notes App Auth Helpers ---
+const NOTES_COOKIE_NAME = "notes_session";
+
+export async function signNotesToken(
+  userId: string,
+  username: string
+): Promise<string> {
+  return new SignJWT({ userId, username })
+    .setProtectedHeader({ alg: "HS256" })
+    .setIssuedAt()
+    .setExpirationTime("7d")
+    .sign(JWT_SECRET);
+}
+
+export async function verifyNotesToken(
+  token: string
+): Promise<{ userId: string; username: string } | null> {
+  try {
+    const { payload } = await jwtVerify(token, JWT_SECRET);
+    if (!payload.userId || !payload.username) return null;
+    return {
+      userId: payload.userId as string,
+      username: payload.username as string,
+    };
+  } catch {
+    return null;
+  }
+}
+
+export async function getNotesSession(): Promise<{
+  userId: string;
+  username: string;
+} | null> {
+  const cookieStore = await cookies();
+  const token = cookieStore.get(NOTES_COOKIE_NAME)?.value;
+  if (!token) return null;
+  return verifyNotesToken(token);
+}
+
+export function createNotesSessionCookie(token: string) {
+  return {
+    name: NOTES_COOKIE_NAME,
+    value: token,
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax" as const,
+    path: "/",
+    maxAge: 60 * 60 * 24 * 7, // 7 days
+  };
+}
+
+export function deleteNotesSessionCookie() {
+  return {
+    name: NOTES_COOKIE_NAME,
+    value: "",
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax" as const,
+    path: "/",
+    maxAge: 0,
+  };
+}
+

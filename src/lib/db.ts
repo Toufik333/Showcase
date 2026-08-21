@@ -114,8 +114,9 @@ async function ensureTables(pool: Pool) {
 }
 
 async function seedData(pool: Pool) {
-  // Seed fixed admin accounts admin1, admin2, admin3 if missing
+  // Seed fixed admin accounts admin1, admin2, admin3 using ADMIN_DEFAULT_PASSWORD from .env
   const defaultAdmins = ["admin1", "admin2", "admin3"];
+  const defaultPassword = process.env.ADMIN_DEFAULT_PASSWORD || "admin123";
 
   // Check which admins are missing BEFORE hashing (avoid CPU-heavy bcrypt on every cold start)
   const missingAdmins: string[] = [];
@@ -131,7 +132,7 @@ async function seedData(pool: Pool) {
 
   // Only hash + insert if there are actually missing admins
   if (missingAdmins.length > 0) {
-    const defaultPasswordHash = await bcrypt.hash("admin123", 12);
+    const defaultPasswordHash = await bcrypt.hash(defaultPassword, 12);
     for (const adminId of missingAdmins) {
       await pool.execute(
         "INSERT INTO admins (admin_id, password_hash) VALUES (?, ?)",

@@ -41,6 +41,7 @@ export async function getDb(): Promise<Db> {
 
 export interface NoteDocument {
   _id?: import("mongodb").ObjectId;
+  userId: string;
   title: string;
   content: string;
   color: string;
@@ -49,13 +50,30 @@ export interface NoteDocument {
   updatedAt: Date;
 }
 
+export interface NoteUserDocument {
+  _id?: import("mongodb").ObjectId;
+  username: string;
+  password_hash: string;
+  createdAt: Date;
+}
+
 export async function getNotesCollection(): Promise<Collection<NoteDocument>> {
   const db = await getDb();
   const collection = db.collection<NoteDocument>("notes");
 
   // Ensure indexes (MongoDB is idempotent on createIndex)
-  await collection.createIndex({ pinned: -1, updatedAt: -1 });
+  await collection.createIndex({ userId: 1, pinned: -1, updatedAt: -1 });
   await collection.createIndex({ title: "text", content: "text" });
+
+  return collection;
+}
+
+export async function getNotesUsersCollection(): Promise<Collection<NoteUserDocument>> {
+  const db = await getDb();
+  const collection = db.collection<NoteUserDocument>("users");
+
+  // Ensure unique index on username
+  await collection.createIndex({ username: 1 }, { unique: true });
 
   return collection;
 }

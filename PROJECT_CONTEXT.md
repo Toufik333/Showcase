@@ -9,7 +9,7 @@ A **Next.js full-stack multi-app web portal** containing:
 1. **Portfolio Landing Page** (`/`) — Apple-inspired minimal developer portfolio with a glassmorphism navbar, hero section, and project cards linking to the apps.
 2. **Money Tracker App** (`/tracker`) — Full-stack personal finance tracker backed by MySQL. Features JWT authentication (signup/login/logout), transaction CRUD (income/expense), monthly dashboard with stat cards, and list/calendar views.
 3. **E-Commerce Store & Admin** (`/shop`, `/shop/admin`) — Storefront with product catalogue, cart & checkout, plus admin authentication, product management, and order tracking backed by MySQL.
-4. **Notes App** (`/notes`) — Cloud-synced note-taking app backed by MongoDB Atlas. Features color-coded cards, pinning, live search filtering, and full CRUD.
+4. **Notes App** (`/notes`, `/notes/login`, `/notes/signup`) — Cloud-synced note-taking app backed by MongoDB Atlas with dedicated user authentication (signup/login/logout), user-isolated notes, color-coded cards, pinning, live search filtering, and full CRUD.
 
 ---
 
@@ -23,9 +23,9 @@ A **Next.js full-stack multi-app web portal** containing:
 | Icons | lucide-react | 0.475.x | SVG icon library |
 | Font | Inter (via `next/font/google`) | — | Typography |
 | Database 1 | MySQL / MariaDB | — | Tracker & Shop data (users, transactions, products, orders, admins) |
-| Database 2 | MongoDB Atlas | — | Notes app cloud storage |
+| Database 2 | MongoDB Atlas | — | Notes app cloud storage (users & notes collections) |
 | DB Drivers | `mysql2/promise`, `mongodb` (v6.x) | — | Connection pooling & client instances |
-| Auth | `jose` + `bcryptjs` | — | JWT cookies (`tracker_session`, `shop_admin_token`) + bcrypt password hashing |
+| Auth | `jose` + `bcryptjs` | — | JWT cookies (`tracker_session`, `admin_session`, `notes_session`) + bcrypt password hashing |
 | Dates | `date-fns` | — | Date formatting & manipulation |
 
 ---
@@ -34,21 +34,21 @@ A **Next.js full-stack multi-app web portal** containing:
 
 ```
 src/
-├── middleware.ts                           ← Protects /tracker/dashboard & /shop/admin/dashboard
+├── middleware.ts                           ← Protects /tracker/dashboard, /shop/admin/dashboard, /notes
 ├── lib/
 │   ├── db.ts                              ← MySQL pool, auto-provisions tables & seeds
-│   ├── auth.ts                            ← JWT sign/verify, bcrypt, cookie helpers
-│   └── mongodb.ts                         ← MongoDB Atlas connection singleton
+│   ├── auth.ts                            ← JWT sign/verify, bcrypt, cookie helpers (tracker, admin, notes)
+│   └── mongodb.ts                         ← MongoDB Atlas connection singleton (users & notes)
 ├── app/
 │   ├── layout.tsx                         ← Root layout (Inter font, metadata)
 │   ├── page.tsx                           ← Portfolio homepage
 │   ├── tracker/                           ← Money tracker routes (login, signup, dashboard)
 │   ├── shop/                              ← Storefront & admin routes (login, dashboard, checkout)
-│   ├── notes/                             ← Notes app page
+│   ├── notes/                             ← Notes app routes (login, signup, app page)
 │   └── api/
 │       ├── tracker/                       ← Auth & transactions API
 │       ├── shop/                          ← Storefront & admin orders/products API
-│       └── notes/                         ← Notes CRUD API
+│       └── notes/                         ← Notes Auth & CRUD API
 └── components/
     ├── Navbar.tsx, Hero.tsx, Footer.tsx   ← Portfolio components
     ├── ProjectGrid.tsx                    ← Project cards linking to apps
@@ -69,6 +69,7 @@ src/
 | `DB_NAME` | MySQL database | `money_tracker` | `cpaneluser_money_tracker` |
 | `DB_SSL` | MySQL SSL mode | `false` | `false` |
 | `JWT_SECRET` | JWT encryption secret | *(dev string)* | `64+ char random string` |
+| `ADMIN_DEFAULT_PASSWORD` | E-Commerce Admin default password | `admin123` | `your_admin_default_password` |
 | `MONGODB_URI` | Atlas MongoDB connection string | `mongodb+srv://...` | `mongodb+srv://...` |
 | `MONGODB_DB` | MongoDB database name | `notes_app` | `notes_app` |
 | `NODE_ENV` | Environment mode | `development` | `production` |

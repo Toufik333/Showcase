@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import {
   ShieldCheck,
   LogOut,
-  Key,
   ShoppingBag,
   Clock,
   Truck,
@@ -71,15 +70,6 @@ export default function AdminDashboardPage() {
 
   // Search for Products
   const [productSearchQuery, setProductSearchQuery] = useState("");
-
-  // Change Password Modal State
-  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
-  const [currentPassword, setCurrentPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [passError, setPassError] = useState<string | null>(null);
-  const [passSuccess, setPassSuccess] = useState<string | null>(null);
-  const [passLoading, setPassLoading] = useState(false);
 
   // Add / Edit Product Modal State
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
@@ -168,49 +158,6 @@ export default function AdminDashboardPage() {
       router.refresh();
     } catch (err) {
       console.error("Logout error", err);
-    }
-  };
-
-  const handleChangePassword = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setPassError(null);
-    setPassSuccess(null);
-
-    if (newPassword !== confirmPassword) {
-      setPassError("New passwords do not match.");
-      return;
-    }
-    if (newPassword.length < 6) {
-      setPassError("New password must be at least 6 characters.");
-      return;
-    }
-
-    try {
-      setPassLoading(true);
-      const res = await fetch("/api/shop/admin/change-password", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ currentPassword, newPassword }),
-      });
-
-      const data = await res.json();
-      if (!data.success) {
-        throw new Error(data.error || "Failed to update password.");
-      }
-
-      setPassSuccess("Password updated successfully!");
-      setCurrentPassword("");
-      setNewPassword("");
-      setConfirmPassword("");
-
-      setTimeout(() => {
-        setIsPasswordModalOpen(false);
-        setPassSuccess(null);
-      }, 1800);
-    } catch (err: any) {
-      setPassError(err.message || "An error occurred.");
-    } finally {
-      setPassLoading(false);
     }
   };
 
@@ -373,13 +320,6 @@ export default function AdminDashboardPage() {
 
         {/* Action Controls */}
         <div className="flex items-center gap-2">
-          <button
-            onClick={() => setIsPasswordModalOpen(true)}
-            className="flex items-center gap-1.5 rounded-xl border border-zinc-200 bg-white px-3.5 py-2 text-xs font-medium text-[#1d1d1f] hover:bg-zinc-50 transition-colors"
-          >
-            <Key size={14} />
-            <span>Change Password</span>
-          </button>
           <button
             onClick={handleLogout}
             className="flex items-center gap-1.5 rounded-xl bg-red-50 px-3.5 py-2 text-xs font-medium text-red-600 hover:bg-red-100/80 transition-colors"
@@ -852,114 +792,6 @@ export default function AdminDashboardPage() {
                     <Loader2 size={14} className="animate-spin" />
                   ) : (
                     <span>{editingProduct ? "Update Product" : "Save Product"}</span>
-                  )}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* CHANGE PASSWORD MODAL */}
-      {isPasswordModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div
-            className="fixed inset-0 bg-black/30 backdrop-blur-xs"
-            onClick={() => setIsPasswordModalOpen(false)}
-          />
-
-          <div className="relative w-full max-w-md rounded-3xl border border-zinc-200/80 bg-white p-6 shadow-2xl z-10 animate-fade-in-up">
-            <div className="flex items-center justify-between border-b border-zinc-100 pb-4 mb-4">
-              <div className="flex items-center gap-2">
-                <Key size={18} className="text-zinc-900" />
-                <h3 className="text-base font-semibold text-[#1d1d1f]">
-                  Change Password ({adminId})
-                </h3>
-              </div>
-              <button
-                onClick={() => setIsPasswordModalOpen(false)}
-                className="rounded-lg p-1 text-[#86868b] hover:bg-zinc-100 hover:text-[#1d1d1f]"
-              >
-                <X size={18} />
-              </button>
-            </div>
-
-            <p className="text-xs text-[#86868b] mb-4">
-              Update password for logged in admin account <strong className="text-zinc-800">{adminId}</strong>. Note: <code className="font-mono text-zinc-700">admin_id</code> cannot be changed.
-            </p>
-
-            {passError && (
-              <div className="mb-4 rounded-xl border border-red-200 bg-red-50 p-3 text-xs font-medium text-red-700">
-                {passError}
-              </div>
-            )}
-
-            {passSuccess && (
-              <div className="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-xs font-medium text-emerald-700">
-                {passSuccess}
-              </div>
-            )}
-
-            <form onSubmit={handleChangePassword} className="space-y-4">
-              <div>
-                <label className="block text-xs font-medium text-[#1d1d1f] mb-1">
-                  Current Password
-                </label>
-                <input
-                  type="password"
-                  required
-                  placeholder="Enter current password"
-                  value={currentPassword}
-                  onChange={(e) => setCurrentPassword(e.target.value)}
-                  className="w-full rounded-xl border border-zinc-200 bg-white py-2.5 px-3 text-xs text-[#1d1d1f] focus:border-zinc-900 focus:outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-medium text-[#1d1d1f] mb-1">
-                  New Password
-                </label>
-                <input
-                  type="password"
-                  required
-                  placeholder="At least 6 characters"
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  className="w-full rounded-xl border border-zinc-200 bg-white py-2.5 px-3 text-xs text-[#1d1d1f] focus:border-zinc-900 focus:outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-medium text-[#1d1d1f] mb-1">
-                  Confirm New Password
-                </label>
-                <input
-                  type="password"
-                  required
-                  placeholder="Re-enter new password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="w-full rounded-xl border border-zinc-200 bg-white py-2.5 px-3 text-xs text-[#1d1d1f] focus:border-zinc-900 focus:outline-none"
-                />
-              </div>
-
-              <div className="pt-2 flex justify-end gap-2">
-                <button
-                  type="button"
-                  onClick={() => setIsPasswordModalOpen(false)}
-                  className="rounded-xl border border-zinc-200 px-4 py-2.5 text-xs font-medium text-[#1d1d1f] hover:bg-zinc-50"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={passLoading}
-                  className="flex items-center gap-1.5 rounded-xl bg-zinc-900 px-4 py-2.5 text-xs font-medium text-white shadow-xs hover:bg-zinc-800 disabled:opacity-50"
-                >
-                  {passLoading ? (
-                    <Loader2 size={14} className="animate-spin" />
-                  ) : (
-                    <span>Save Password</span>
                   )}
                 </button>
               </div>

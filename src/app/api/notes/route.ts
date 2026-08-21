@@ -1,19 +1,26 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getNotesCollection } from "@/lib/mongodb";
+import { getNotesSession } from "@/lib/auth";
 
-// GET /api/notes — list all notes, optional ?search= query
+// GET /api/notes — list all notes for logged-in user, optional ?search= query
 export async function GET(request: NextRequest) {
   try {
+    const session = await getNotesSession();
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const { searchParams } = new URL(request.url);
     const search = searchParams.get("search")?.trim();
 
     const collection = await getNotesCollection();
 
-    // Build query
+    // Build query scoped to the user
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let query: any = {};
+    let query: any = { userId: session.userId };
     if (search) {
       query = {
+        userId: session.userId,
         $or: [
           { title: { $regex: search, $options: "i" } },
           { content: { $regex: search, $options: "i" } },
@@ -36,9 +43,14 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST /api/notes — create a new note
+// POST /api/notes — create a new note for logged-in user
 export async function POST(request: NextRequest) {
   try {
+    const session = await getNotesSession();
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const body = await request.json();
     const { title, content, color } = body;
 
@@ -77,6 +89,7 @@ export async function POST(request: NextRequest) {
 
     const now = new Date();
     const note = {
+      userId: session.userId,
       title: title.trim(),
       content: (content || "").trim(),
       color: noteColor,

@@ -1,13 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ObjectId } from "mongodb";
 import { getNotesCollection } from "@/lib/mongodb";
+import { getNotesSession } from "@/lib/auth";
 
-// PUT /api/notes/:id — update a note
+// PUT /api/notes/:id — update a note belonging to logged-in user
 export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const session = await getNotesSession();
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const { id } = await params;
 
     if (!ObjectId.isValid(id)) {
@@ -69,7 +75,7 @@ export async function PUT(
 
     const collection = await getNotesCollection();
     const result = await collection.findOneAndUpdate(
-      { _id: new ObjectId(id) },
+      { _id: new ObjectId(id), userId: session.userId },
       { $set: update },
       { returnDocument: "after" }
     );
@@ -88,12 +94,17 @@ export async function PUT(
   }
 }
 
-// DELETE /api/notes/:id — delete a note
+// DELETE /api/notes/:id — delete a note belonging to logged-in user
 export async function DELETE(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const session = await getNotesSession();
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const { id } = await params;
 
     if (!ObjectId.isValid(id)) {
@@ -101,7 +112,10 @@ export async function DELETE(
     }
 
     const collection = await getNotesCollection();
-    const result = await collection.deleteOne({ _id: new ObjectId(id) });
+    const result = await collection.deleteOne({
+      _id: new ObjectId(id),
+      userId: session.userId,
+    });
 
     if (result.deletedCount === 0) {
       return NextResponse.json({ error: "Note not found" }, { status: 404 });

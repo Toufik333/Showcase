@@ -49,9 +49,46 @@ export async function middleware(request: NextRequest) {
     }
   }
 
+  // Protect /notes routes
+  if (pathname === "/notes" || pathname.startsWith("/notes/")) {
+    const isAuthRoute =
+      pathname === "/notes/login" || pathname === "/notes/signup";
+    const token = request.cookies.get("notes_session")?.value;
+
+    let isAuthenticated = false;
+    if (token) {
+      try {
+        const { payload } = await jwtVerify(token, JWT_SECRET);
+        if (payload.userId && payload.username) {
+          isAuthenticated = true;
+        }
+      } catch {
+        isAuthenticated = false;
+      }
+    }
+
+    // If visiting login/signup while already authenticated, redirect to /notes
+    if (isAuthRoute && isAuthenticated) {
+      return NextResponse.redirect(new URL("/notes", request.url));
+    }
+
+    // If visiting protected /notes route while not authenticated, redirect to /notes/login
+    if (!isAuthRoute && !isAuthenticated) {
+      return NextResponse.redirect(new URL("/notes/login", request.url));
+    }
+
+    return NextResponse.next();
+  }
+
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/tracker/dashboard/:path*", "/shop/admin/dashboard/:path*"],
+  matcher: [
+    "/tracker/dashboard/:path*",
+    "/shop/admin/dashboard/:path*",
+    "/notes",
+    "/notes/:path*",
+  ],
 };
+
