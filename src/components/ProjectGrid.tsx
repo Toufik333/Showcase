@@ -33,30 +33,7 @@ const projects = [
     link: "/notes",
     icon: StickyNote,
   },
-  {
-    title: "Atlas Maps",
-    summary:
-      "Interactive geospatial visualization platform for urban planning data and demographic analysis.",
-    tags: ["Mapbox", "D3.js", "Go"],
-    link: "#",
-    icon: Globe,
-  },
-  {
-    title: "Prism CMS",
-    summary:
-      "Headless content management system with a visual editor, API-first architecture, and plugin ecosystem.",
-    tags: ["Next.js", "GraphQL", "MongoDB"],
-    link: "#",
-    icon: Layers,
-  },
-  {
-    title: "Echo — AI Writing",
-    summary:
-      "AI-powered writing assistant with context-aware suggestions, tone analysis, and collaborative editing.",
-    tags: ["OpenAI", "TypeScript", "Redis"],
-    link: "#",
-    icon: Sparkles,
-  },
+
 ];
 
 export default function ProjectGrid() {

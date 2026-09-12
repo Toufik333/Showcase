@@ -26,46 +26,6 @@
       "static/chunks/main-app.js",
       "static/chunks/app/page.js"
     ],
-    "/notes/login/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/notes/login/page.js"
-    ],
-    "/notes/signup/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/notes/signup/page.js"
-    ],
-    "/api/notes/auth/signup/route": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/api/notes/auth/signup/route.js"
-    ],
-    "/notes/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/notes/page.js"
-    ],
-    "/api/notes/auth/me/route": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/api/notes/auth/me/route.js"
-    ],
-    "/api/notes/route": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/api/notes/route.js"
-    ],
-    "/api/notes/auth/logout/route": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/api/notes/auth/logout/route.js"
-    ],
-    "/api/notes/auth/login/route": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/api/notes/auth/login/route.js"
-    ],
     "/shop/layout": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
@@ -81,45 +41,40 @@
       "static/chunks/main-app.js",
       "static/chunks/app/shop/page.js"
     ],
-    "/api/shop/products/route": [
+    "/tracker/login/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/api/shop/products/route.js"
+      "static/chunks/app/tracker/login/page.js"
     ],
-    "/shop/admin/dashboard/page": [
+    "/notes/login/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/shop/admin/dashboard/page.js"
+      "static/chunks/app/notes/login/page.js"
     ],
-    "/api/shop/admin/orders/route": [
+    "/tracker/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/api/shop/admin/orders/route.js"
+      "static/chunks/app/tracker/page.js"
     ],
-    "/api/shop/admin/logout/route": [
+    "/tracker/signup/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/api/shop/admin/logout/route.js"
+      "static/chunks/app/tracker/signup/page.js"
     ],
-    "/shop/admin/login/page": [
+    "/api/tracker/auth/signup/route": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/shop/admin/login/page.js"
+      "static/chunks/app/api/tracker/auth/signup/route.js"
     ],
-    "/api/shop/admin/login/route": [
+    "/tracker/dashboard/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/api/shop/admin/login/route.js"
+      "static/chunks/app/tracker/dashboard/page.js"
     ],
-    "/shop/checkout/page": [
+    "/api/tracker/transactions/route": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/shop/checkout/page.js"
-    ],
-    "/api/shop/orders/route": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/api/shop/orders/route.js"
+      "static/chunks/app/api/tracker/transactions/route.js"
     ]
   }
 }

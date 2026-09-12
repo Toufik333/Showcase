@@ -3,37 +3,68 @@ import type { Pool } from "mysql2/promise";
 import bcrypt from "bcryptjs";
 
 let pool: Pool | null = null;
+let poolPromise: Promise<Pool> | null = null;
 
-const DB_CONFIG = {
-  host: process.env.DB_HOST || process.env.MYSQLHOST || "localhost",
-  port: Number(process.env.DB_PORT || process.env.MYSQLPORT) || 3306,
-  user: process.env.DB_USER || process.env.MYSQLUSER || "root",
-  password: process.env.DB_PASSWORD || process.env.MYSQLPASSWORD || "",
-  database: process.env.DB_NAME || process.env.MYSQLDATABASE || "money_tracker",
-  ssl: process.env.DB_SSL === "true" ? { rejectUnauthorized: false } : undefined,
-};
+function getDbConfig() {
+  const connectionUrl =
+    process.env.DATABASE_URL ||
+    process.env.MYSQL_URL ||
+    process.env.MYSQL_URI;
 
-async function ensureDatabase() {
+  if (connectionUrl) {
+    try {
+      const parsed = new URL(connectionUrl);
+      return {
+        host: parsed.hostname,
+        port: Number(parsed.port) || 3306,
+        user: decodeURIComponent(parsed.username),
+        password: decodeURIComponent(parsed.password),
+        database: parsed.pathname.replace(/^\//, "") || "defaultdb",
+        ssl: { rejectUnauthorized: false },
+        isCloudUrl: true,
+      };
+    } catch (e) {
+      console.warn("[db] Failed to parse connection URL, falling back to individual env variables:", e);
+    }
+  }
+
+  const isSsl = process.env.DB_SSL === "true" || process.env.DB_SSL === "1";
+  return {
+    host: process.env.DB_HOST || process.env.MYSQLHOST || "localhost",
+    port: Number(process.env.DB_PORT || process.env.MYSQLPORT) || 3306,
+    user: process.env.DB_USER || process.env.MYSQLUSER || "root",
+    password: process.env.DB_PASSWORD || process.env.MYSQLPASSWORD || "",
+    database: process.env.DB_NAME || process.env.MYSQLDATABASE || "money_tracker",
+    ssl: isSsl ? { rejectUnauthorized: false } : undefined,
+    isCloudUrl: false,
+  };
+}
+
+async function ensureDatabase(config: ReturnType<typeof getDbConfig>) {
+  // If connecting to a cloud-hosted database (e.g. Aiven, TiDB), the database
+  // already exists and users generally lack CREATE DATABASE permissions.
+  if (config.isCloudUrl || process.env.DB_SSL === "true") {
+    return;
+  }
+
   try {
     // Connect without database first to create it if needed (works on local root)
     const conn = await mysql.createConnection({
-      host: DB_CONFIG.host,
-      port: DB_CONFIG.port,
-      user: DB_CONFIG.user,
-      password: DB_CONFIG.password,
-      ssl: DB_CONFIG.ssl,
+      host: config.host,
+      port: config.port,
+      user: config.user,
+      password: config.password,
+      ssl: config.ssl,
     });
 
     await conn.execute(
-      `CREATE DATABASE IF NOT EXISTS \`${DB_CONFIG.database}\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci`
+      `CREATE DATABASE IF NOT EXISTS \`${config.database}\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci`
     );
     await conn.end();
   } catch (err) {
-    // On cPanel/cloud hosting, the database is already created in cPanel Wizard,
-    // so non-root users lack global CREATE DATABASE privilege. Safely proceed.
     console.warn(
-      `[db] Could not CREATE DATABASE "${DB_CONFIG.database}". ` +
-      `If on shared hosting, ensure the database was created via cPanel MySQL Wizard. ` +
+      `[db] Could not CREATE DATABASE "${config.database}". ` +
+      `If using managed cloud database or cPanel, ensure the database exists. ` +
       `Error: ${err instanceof Error ? err.message : err}`
     );
   }
@@ -208,20 +239,33 @@ async function seedData(pool: Pool) {
 
 export async function getPool(): Promise<Pool> {
   if (pool) return pool;
+  if (poolPromise) return poolPromise;
 
-  await ensureDatabase();
+  poolPromise = (async () => {
+    const config = getDbConfig();
+    await ensureDatabase(config);
 
-  pool = mysql.createPool({
-    ...DB_CONFIG,
-    waitForConnections: true,
-    connectionLimit: 5,
-    queueLimit: 0,
-  });
+    const newPool = mysql.createPool({
+      host: config.host,
+      port: config.port,
+      user: config.user,
+      password: config.password,
+      database: config.database,
+      ssl: config.ssl,
+      waitForConnections: true,
+      connectionLimit: 5,
+      queueLimit: 0,
+    });
 
-  try {
-    await ensureTables(pool);
-  } catch (err) {
-    console.error("ensureTables notice:", err);
-  }
-  return pool;
+    try {
+      await ensureTables(newPool);
+    } catch (err) {
+      console.error("ensureTables notice:", err);
+    }
+
+    pool = newPool;
+    return pool;
+  })();
+
+  return poolPromise;
 }
