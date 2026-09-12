@@ -33,6 +33,14 @@ const projects = [
     link: "/notes",
     icon: StickyNote,
   },
+  {
+    title: "Bachelors Recipie",
+    summary:
+      "Minimal cloud-synced note-taking app with color-coded cards, pinning, search, and MongoDB Atlas backend.",
+    tags: ["Next.js", "MongoDB", "Tailwind"],
+    link: "https://deshi-bachelors-recipie.vercel.app/",
+    icon: StickyNote,
+  },
 
 ];
 
