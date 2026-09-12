@@ -1,11 +1,13 @@
 import {
   ArrowUpRight,
+  ChefHat,
   Layers,
   Wallet,
   StickyNote,
   ShoppingBag,
   Globe,
   Sparkles,
+  MicVocal,
 } from "lucide-react";
 
 const projects = [
@@ -36,11 +38,28 @@ const projects = [
   {
     title: "Bachelors Recipie",
     summary:
-      "Minimal cloud-synced note-taking app with color-coded cards, pinning, search, and MongoDB Atlas backend.",
+      "The recipe app for bachelors to cookDeshi foods",
     tags: ["Next.js", "MongoDB", "Tailwind"],
     link: "https://deshi-bachelors-recipie.vercel.app/",
-    icon: StickyNote,
+    icon: ChefHat,
   },
+  {
+    title: "Vocabulary for Bengal",
+    summary:
+      "Vocabulary For Bengal is a web application that helps you learn Bengali words and phrases in a fun and interactive way.",
+    tags: ["Next.js", "MongoDB", "Tailwind"],
+    link: "https://vocabulary-for-bengal.vercel.app/",
+    icon: MicVocal,
+  },
+  {
+    title: "Voice Agent Interviewer",
+    summary:
+      "It can interview you with ai agent at selected positon for CS Student freshers. Practice with AI agent to overcome interview fear.",
+    tags: ["Next.js", "MongoDB", "Tailwind"],
+    link: "https://voice-agent-interviewer.vercel.app/",
+    icon: MicVocal,
+  },
+
 
 ];
 
