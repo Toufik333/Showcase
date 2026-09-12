@@ -15,7 +15,7 @@ export default function Footer() {
         {/* Social links */}
         <div className="flex items-center gap-5">
           <a
-            href="https://github.com"
+            href="https://github.com/Toufik333"
             target="_blank"
             rel="noopener noreferrer"
             className="text-[#86868b] hover:text-[#1d1d1f] transition-colors duration-200"
@@ -24,7 +24,7 @@ export default function Footer() {
             <Github size={16} strokeWidth={1.75} />
           </a>
           <a
-            href="https://linkedin.com"
+            href="https://www.linkedin.com/in/toufik333"
             target="_blank"
             rel="noopener noreferrer"
             className="text-[#86868b] hover:text-[#1d1d1f] transition-colors duration-200"
@@ -33,7 +33,7 @@ export default function Footer() {
             <Linkedin size={16} strokeWidth={1.75} />
           </a>
           <a
-            href="mailto:hello@example.com"
+            href="mailto:[EMAIL_ADDRESS]"
             className="text-[#86868b] hover:text-[#1d1d1f] transition-colors duration-200"
             aria-label="Email"
           >

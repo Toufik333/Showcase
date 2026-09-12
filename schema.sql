@@ -64,9 +64,9 @@ CREATE TABLE IF NOT EXISTS `admins` (
 
 -- 7. Insert Default Admin Accounts (Default password for all is: admin123)
 INSERT IGNORE INTO `admins` (`admin_id`, `password_hash`) VALUES
-('admin1', '$2a$12$R.32P2iIe71N1u6hO3wY9.s54X0R597Z562yXw38/54508494191.'),
-('admin2', '$2a$12$R.32P2iIe71N1u6hO3wY9.s54X0R597Z562yXw38/54508494191.'),
-('admin3', '$2a$12$R.32P2iIe71N1u6hO3wY9.s54X0R597Z562yXw38/54508494191.');
+('admin1', '$2b$12$ojcknUB.BohByLyj5kNS0OUajyt3hURlicAoHnTQqBx8vG0..lJRS'),
+('admin2', '$2b$12$ojcknUB.BohByLyj5kNS0OUajyt3hURlicAoHnTQqBx8vG0..lJRS'),
+('admin3', '$2b$12$ojcknUB.BohByLyj5kNS0OUajyt3hURlicAoHnTQqBx8vG0..lJRS');
 
 -- 8. Insert Initial Sample Products
 INSERT IGNORE INTO `products` (`id`, `title`, `price`, `image_url`, `description`) VALUES
